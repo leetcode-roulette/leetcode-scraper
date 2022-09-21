@@ -1,28 +1,7 @@
 import * as puppeteer from "puppeteer";
 import { Browser, Page, PuppeteerLaunchOptions } from "puppeteer";
-
-interface IPageDictionary {
-	[key: string]: BrowserPage;
-}
-
-class BrowserPage extends Page {
-	private _pageKey: string | undefined = undefined;
-	private _page: Page | undefined = undefined;
-
-	public constructor(pageKey: string, page: Page) {
-		super();
-		this._pageKey = pageKey;
-		this._page = page;
-	}
-
-	public get pageKey(): string {
-		return this._pageKey as string;
-	}
-
-	public get page(): Page {
-		return this._page as Page;
-	}
-}
+import { BrowserPage } from "./BrowserPage";
+import { IPageDictionary } from "./interfaces/IPageDictionary";
 
 export class HeadlessBrowser {
 	private _browser: Browser | undefined = undefined;
@@ -36,7 +15,7 @@ export class HeadlessBrowser {
 		this._browser = await puppeteer.launch(options);
 	}
 
-	public createNewPage(pageKey: string): BrowserPage {
+	public createNewPage(pageKey?: string): BrowserPage {
 		let browserPage: BrowserPage | any;
 		try {
 			(async () => {
