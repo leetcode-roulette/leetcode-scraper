@@ -1,4 +1,3 @@
-import e from "express";
 import * as puppeteer from "puppeteer";
 import { HTTPResponse } from "puppeteer";
 
