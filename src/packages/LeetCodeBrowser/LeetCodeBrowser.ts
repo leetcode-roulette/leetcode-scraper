@@ -17,7 +17,7 @@ export async function createLeetCodeBrowser(options?: PuppeteerLaunchOptions): P
 	return Promise.resolve(new LeetCodeBrowser(options, browser, page));
 }
 
-export class LeetCodeBrowser extends LeetCodeEvents {
+class LeetCodeBrowser extends LeetCodeEvents {
 	private baseURL: string = "https://leetcode.com/problems";
 	public constructor(private options: PuppeteerLaunchOptions, private browser: Browser, private page: Page) {
 		super();
