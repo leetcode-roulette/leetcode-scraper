@@ -1,13 +1,13 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-interface iStats {
+export interface iStats {
 	accepted: number;
 	submissions: number;
 	acRate: string;
 }
 const StatsSchema: Schema<iStats> = new Schema({ accepted: "number", submissions: "number", acRate: "string" });
 
-interface iTags {
+export interface iTags {
 	name: string;
 	slug: string;
 }
@@ -17,7 +17,7 @@ const TagsSchema: Schema<iTags> = new Schema({
 	slug: "string",
 });
 
-interface iSolution {
+export interface iSolution {
 	solutionID: number;
 	canSeeDetail: boolean;
 	paidOnly: boolean;
@@ -65,5 +65,4 @@ const ProblemDataSchema: Schema<IProblemData> = new mongoose.Schema({
 	solution: { type: SolutionSchema, default: null },
 });
 
-const ProblemData: Model<IProblemData> = mongoose.model("problemData", ProblemDataSchema);
-export default ProblemData;
+export const ProblemData: Model<IProblemData> = mongoose.model("problemData", ProblemDataSchema);

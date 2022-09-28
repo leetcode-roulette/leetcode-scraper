@@ -1,14 +1,23 @@
 import { config } from "dotenv";
 import express, { Application } from "express";
+import { Database } from "./db/db.config";
+import healthcheck from "./healthCheck";
 import LeetCode from "./routes/Leetcode/leetcode";
 config();
-const app: Application = express();
 
-const PORT = process.env.PORT || 3000;
+const serve = async (): Promise<void> => {
+	const app: Application = express();
+	await Database.connect();
 
-app.use(express.json());
-app.use("/leetcodeproblem", LeetCode);
+	const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-	console.log(`Server is listening on port: ${PORT}`);
-});
+	app.use("/", healthcheck);
+
+	app.use(express.json());
+	app.use("/leetcodeproblem", LeetCode);
+
+	app.listen(PORT, () => {
+		console.log(`Server is listening on port: ${PORT}`);
+	});
+};
+serve();
