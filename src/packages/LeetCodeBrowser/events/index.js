@@ -1,4 +1,4 @@
 import BrowserEvents from "./BrowserEvents";
-import PageEvents from "./PageEvents";
+import { PageEventsMap, PageEvents } from "./PageEvents";
 
-export { BrowserEvents, PageEvents };
+export { BrowserEvents, PageEventsMap, PageEvents };
