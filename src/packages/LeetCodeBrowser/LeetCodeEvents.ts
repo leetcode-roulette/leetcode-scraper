@@ -1,8 +1,10 @@
 import EventEmitter from "eventemitter3";
 import { HTTPResponse, Page } from "puppeteer";
 import { PageEvents } from "./events";
-import { LeetCodeRequestPaylod } from "./types/LeetCodeXHRRequest";
-import { LeetCodeResponsePayload } from "./types/LeetCodeXHRResponse";
+import { LeetCodeRequestPaylod } from "./interfaces/LeetCodeXHRRequest";
+import { LeetCodeResponsePayload } from "./interfaces/LeetCodeXHRResponse";
+import { ProblemDataDB } from "../../db/ProblemDataDB";
+import { LeetCodeQuestionData } from "./interfaces/LeetCodeQuestionData";
 
 export class LeetCodeEvents extends EventEmitter {
 	constructor() {
@@ -14,9 +16,10 @@ export class LeetCodeEvents extends EventEmitter {
 		const { operationName } = reqObject;
 		switch (operationName) {
 			case "questionData":
-				console.log(resObject.data);
+				let x: LeetCodeQuestionData = resObject.data.question;
+				ProblemDataDB.insert(x);
 			default:
-				console.log(operationName);
+			//console.log(operationName);
 		}
 	}
 
