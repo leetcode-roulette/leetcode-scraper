@@ -1,8 +1,7 @@
 import { config } from "dotenv";
 import express, { Application } from "express";
 import { Database } from "./db/db.config";
-import healthcheck from "./healthCheck";
-import LeetCode from "./routes/Leetcode/leetcode";
+import healthcheck from "./routes/healthCheck";
 config();
 
 const serve = async (): Promise<void> => {
@@ -14,8 +13,6 @@ const serve = async (): Promise<void> => {
 	app.use("/", healthcheck);
 
 	app.use(express.json());
-	app.use("/leetcodeproblem", LeetCode);
-
 	app.listen(PORT, () => {
 		console.log(`Server is listening on port: ${PORT}`);
 	});
