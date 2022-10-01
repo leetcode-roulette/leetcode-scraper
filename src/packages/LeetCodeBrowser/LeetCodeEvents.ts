@@ -15,6 +15,7 @@ export class LeetCodeEvents extends EventEmitter {
 
 	private async handleXHR(reqObject: LeetCodeRequestPaylod, resObject: LeetCodeResponsePayload) {
 		const { operationName } = reqObject;
+		console.log(operationName);
 		switch (operationName) {
 			case "questionData":
 				let x: LeetCodeQuestionData = resObject.data.question;

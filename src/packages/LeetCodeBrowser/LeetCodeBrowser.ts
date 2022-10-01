@@ -22,7 +22,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 	public async goTo(path: String) {
 		const urlPath = `${this.baseURL}/${path}`;
 		try {
-			await this.page.goto(urlPath);
+			await this.page.goto(urlPath, { waitUntil: "networkidle0" });
 		} catch (error) {
 			this.log(error);
 		}
