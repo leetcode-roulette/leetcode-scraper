@@ -17,7 +17,7 @@ export async function createLeetCodeBrowser(options?: PuppeteerLaunchOptions): P
 	return Promise.resolve(new LeetCodeBrowser(options, browser, page));
 }
 
-class LeetCodeBrowser extends LeetCodeEvents {
+export class LeetCodeBrowser extends LeetCodeEvents {
 	private baseURL: string = "https://leetcode.com/problems";
 	public constructor(private options: PuppeteerLaunchOptions, private browser: Browser, private page: Page) {
 		super();
@@ -36,7 +36,7 @@ class LeetCodeBrowser extends LeetCodeEvents {
 	public async goTo(path: String) {
 		const urlPath = `${this.baseURL}/${path}`;
 		try {
-			await this.page.goto(urlPath);
+			await this.page.goto(urlPath, { waitUntil: "networkidle0" });
 		} catch (error) {
 			this.log(error);
 		}
