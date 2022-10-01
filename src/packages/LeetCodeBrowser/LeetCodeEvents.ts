@@ -1,15 +1,16 @@
 import EventEmitter from "eventemitter3";
-import { HTTPResponse, Page } from "puppeteer";
 import { PageEvents } from "./events";
 import { LeetCodeRequestPaylod } from "./interfaces/LeetCodeXHRRequest";
 import { LeetCodeResponsePayload } from "./interfaces/LeetCodeXHRResponse";
 import { ProblemDataDB } from "../../db/ProblemDataDB";
 import { LeetCodeQuestionData } from "./interfaces/LeetCodeQuestionData";
 
+import { eventPageResponse } from "./PageEventListeners";
+
 export class LeetCodeEvents extends EventEmitter {
 	constructor() {
 		super();
-		this.initialize();
+		this.addPageEvents();
 	}
 
 	private async handleXHR(reqObject: LeetCodeRequestPaylod, resObject: LeetCodeResponsePayload) {
@@ -23,24 +24,7 @@ export class LeetCodeEvents extends EventEmitter {
 		}
 	}
 
-	private initialize() {
-		this.on(PageEvents.PAGE_RESPONSE, async (res: HTTPResponse, page: Page) => {
-			const request = await res.request();
-			const resourceType = await request.resourceType();
-			if (resourceType == "xhr") {
-				let responseData: LeetCodeResponsePayload;
-
-				try {
-					const requestString = await request.postData();
-					if (requestString) {
-						const requestPayload: LeetCodeRequestPaylod = await JSON.parse(requestString);
-						responseData = await res.json();
-						this.handleXHR(requestPayload, responseData);
-					}
-				} catch (e) {
-					console.error(e);
-				}
-			}
-		});
+	private addPageEvents() {
+		this.on(PageEvents.PAGE_RESPONSE, eventPageResponse);
 	}
 }
