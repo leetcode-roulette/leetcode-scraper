@@ -14,6 +14,7 @@ export class LeetCodeEvents extends EventEmitter {
 
 	private async handleXHR(reqObject: LeetCodeRequestPaylod, resObject: LeetCodeResponsePayload) {
 		const { operationName } = reqObject;
+		console.log(operationName);
 		switch (operationName) {
 			case "questionData":
 				let x: LeetCodeQuestionData = resObject.data.question;
@@ -27,6 +28,8 @@ export class LeetCodeEvents extends EventEmitter {
 		this.on(PageEvents.PAGE_RESPONSE, async (res: HTTPResponse, page: Page) => {
 			const request = await res.request();
 			const resourceType = await request.resourceType();
+
+			console.log(resourceType);
 			if (resourceType == "xhr") {
 				let responseData: LeetCodeResponsePayload;
 
