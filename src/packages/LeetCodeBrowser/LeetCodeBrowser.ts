@@ -7,8 +7,8 @@ puppeteer.use(StealthPlugin());
 
 export class LeetCodeBrowser extends LeetCodeEvents {
 	private static defaultOptions: PuppeteerLaunchOptions = {};
-	private baseURL: string = "https://leetcode.com/";
-	private loginURL: string = "https://leetcode.com/accounts/login";
+	private static baseURL: string = "https://leetcode.com/";
+	private static loginURL: string = "https://leetcode.com/accounts/login";
 	private constructor(private options: PuppeteerLaunchOptions, private browser: Browser, private page: Page) {
 		super();
 		this.addBrowserEventListeners(browser);
@@ -24,7 +24,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 	}
 
 	public async goTo(path: String): Promise<void> {
-		const urlPath = `${this.baseURL}problems/${path}`;
+		const urlPath = `${LeetCodeBrowser.baseURL}problems/${path}`;
 		try {
 			await this.page.goto(urlPath, { waitUntil: "networkidle0" });
 		} catch (error) {
@@ -46,7 +46,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 
 		const inputDelay = 100;
 
-		await this.page.goto(this.loginURL, { waitUntil: "networkidle0" });
+		await this.page.goto(LeetCodeBrowser.loginURL, { waitUntil: "networkidle0" });
 		await this.page.type(loginInputID, username, { delay: inputDelay });
 		await this.page.type(passwordInputID, password, { delay: inputDelay });
 		try {
@@ -55,7 +55,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 				this.page.click(submitBtnID, { delay: inputDelay }),
 			]);
 			if (response) {
-				if (response.url() === this.baseURL) {
+				if (response.url() === LeetCodeBrowser.baseURL) {
 					console.log("Logged into leetcode!");
 					return;
 				}
