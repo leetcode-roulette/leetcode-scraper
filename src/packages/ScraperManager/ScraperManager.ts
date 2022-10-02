@@ -1,6 +1,6 @@
 import { EventEmitter } from "eventemitter3";
 import { getTitleSlugs } from "../../db/Problem";
-import { createLeetCodeBrowser, LeetCodeBrowser } from "../LeetCodeBrowser/LeetCodeBrowser";
+import { LeetCodeBrowser } from "../LeetCodeBrowser/LeetCodeBrowser";
 
 class ScraperManager extends EventEmitter {
 	private browser: LeetCodeBrowser | null = null;
@@ -15,7 +15,7 @@ class ScraperManager extends EventEmitter {
 	}
 
 	private async createBrowserInstance() {
-		this.browser = await createLeetCodeBrowser();
+		this.browser = await LeetCodeBrowser.createInstance();
 	}
 
 	public async initialize() {
