@@ -23,7 +23,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 		bindBrowserEventListeners(browser, this);
 	}
 
-	public async goTo(path: String) {
+	public async goTo(path: String): Promise<void> {
 		const urlPath = `${this.baseURL}problems/${path}`;
 		try {
 			await this.page.goto(urlPath, { waitUntil: "networkidle0" });
@@ -32,7 +32,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 		}
 	}
 
-	private async loginToLeetCode() {
+	private async loginToLeetCode(): Promise<void> {
 		const username = process.env.LEETCODE_USERNAME;
 		const password = process.env.LEETCODE_PASSWORD;
 		console.log("Attempting to login to leetcode...");
@@ -66,7 +66,7 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 		throw new Error(`Could not login to Leetcode with provided username and password.`);
 	}
 
-	protected async initialize() {
+	protected async initialize(): Promise<void> {
 		await this.loginToLeetCode();
 	}
 	public static async createInstance(options?: PuppeteerLaunchOptions): Promise<LeetCodeBrowser> {
