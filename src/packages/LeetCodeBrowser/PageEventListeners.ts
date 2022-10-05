@@ -5,7 +5,6 @@ import { LeetCodeResponsePayload } from "./interfaces/LeetCodeXHRResponse";
 export async function eventPageResponse(res: HTTPResponse, page: Page) {
 	const req = await res.request();
 	const resourceType = await req.resourceType();
-
 	handlePageResponse(req, res, resourceType, page);
 }
 
@@ -26,7 +25,7 @@ async function xhrResourceType(req: HTTPRequest, res: HTTPResponse) {
 		if (requestString) {
 			const requestPayload: LeetCodeRequestPaylod = await JSON.parse(requestString);
 			responseData = await res.json();
-			console.log("IMPLEMENT!");
+			console.log(responseData);
 			//this.handleXHR(requestPayload, responseData);
 		}
 	} catch (error) {

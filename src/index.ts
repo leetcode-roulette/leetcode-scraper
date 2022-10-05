@@ -1,14 +1,16 @@
 import { config } from "dotenv";
 import express, { Application } from "express";
 import { Database } from "./db/db.config";
-import ScraperManager from "./packages/ScraperManager/ScraperManager";
+import LeetCodeBrowser from "./packages/LeetCodeBrowser/LeetCodeBrowser";
 import healthcheck from "./routes/healthCheck";
 config();
 
 const serve = async (): Promise<void> => {
 	const app: Application = express();
 	Database.connect();
-	await ScraperManager.initialize();
+
+	const lc = await LeetCodeBrowser.createInstance();
+	await lc.login();
 
 	const PORT = process.env.PORT || 3000;
 
