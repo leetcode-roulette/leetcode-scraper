@@ -10,7 +10,6 @@ const serve = async (): Promise<void> => {
 	Database.connect();
 
 	const lc = await LeetCodeBrowser.createInstance();
-	await lc.login();
 
 	const PORT = process.env.PORT || 3000;
 

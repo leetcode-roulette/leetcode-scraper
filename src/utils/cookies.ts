@@ -9,13 +9,13 @@ export function saveCookiesToFile(cookies: Protocol.Network.Cookie[]) {
 }
 
 export function openCookiesFromFile(): Protocol.Network.Cookie[] | undefined {
-	let data: Protocol.Network.Cookie[] = [];
+	let data: Protocol.Network.Cookie[] | undefined = undefined;
 	try {
 		const json = fs.readFileSync("user_cookies.json");
 		data = JSON.parse(json.toString());
 	} catch (error) {
-		console.error("user_cookies.json does not exists", error);
-		return;
+		console.error("user_cookies.json does not exists");
+		return data;
 	}
 	return data;
 }
