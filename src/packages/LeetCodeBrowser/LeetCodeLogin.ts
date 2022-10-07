@@ -1,11 +1,13 @@
 import puppeteer from "puppeteer-extra";
-import { Protocol } from "puppeteer";
+import { HTTPResponse, Page, Protocol } from "puppeteer";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import UserAgent from "../../../config/useragent";
 import { openCookiesFromFile, saveCookiesToFile } from "../../utils/cookies";
+import { LeetcodeGlobalData } from "./interfaces/LeetcodeGlobalData";
 puppeteer.use(StealthPlugin());
 
 class LeetCodeLogin {
+	private static baseURL: string = "https://leetcode.com/";
 	private static loginURL: string = "https://leetcode.com/accounts/login";
 	private static useragent: string = UserAgent.useragent;
 	private static credentials: Protocol.Network.Cookie[];
@@ -19,7 +21,8 @@ class LeetCodeLogin {
 
 	private static async getCredentials(): Promise<Protocol.Network.Cookie[]> {
 		let credentials: Protocol.Network.Cookie[] | undefined = openCookiesFromFile();
-		if (credentials) {
+		const isLoggedIn = await this.checkLoginStatus(credentials);
+		if (credentials && isLoggedIn) {
 			return credentials;
 		}
 		credentials = await this.login();
@@ -29,6 +32,71 @@ class LeetCodeLogin {
 
 	private static saveCredentials(credentials: Protocol.Network.Cookie[]) {
 		saveCookiesToFile(credentials);
+	}
+
+	private static async getLeetcodeGlobalData(page: Page): Promise<LeetcodeGlobalData> {
+		return new Promise(async (resolve, reject) => {
+			page.on("response", async (response) => {
+				const request = response.request();
+				if (request.resourceType() === "xhr") {
+					const postData = request.postData();
+					if (postData) {
+						try {
+							const jsonPostData = JSON.parse(postData);
+							if (typeof jsonPostData === "object" && jsonPostData !== null) {
+								if (jsonPostData.operationName === "globalData") {
+									const responseObject = await response.json();
+									resolve(responseObject.data);
+								}
+							}
+						} catch (error) {}
+					}
+				}
+			});
+			page.goto(LeetCodeLogin.baseURL).catch((error) => {
+				//console.error(error);
+			});
+		});
+	}
+
+	private static checkLoginStatus(credentials: Protocol.Network.Cookie[] | undefined): Promise<Boolean> {
+		return new Promise(async (resolve, reject) => {
+			if (!credentials) return resolve(false);
+			const loginBrowser = await puppeteer.launch();
+			const defaultPages = await loginBrowser.pages();
+			const loginPage = defaultPages[0];
+			await loginPage.setUserAgent(LeetCodeLogin.useragent);
+			await loginPage.setCookie(...credentials);
+
+			const { userStatus } = await this.getLeetcodeGlobalData(loginPage);
+			await loginBrowser.close();
+
+			resolve(userStatus.isSignedIn);
+		});
+	}
+
+	private static async waitForLogin(response: HTTPResponse, loginPage: Page): Promise<Protocol.Network.Cookie[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const request = response.request();
+				if (request.resourceType() === "xhr") {
+					const postData = request.postData();
+					if (postData) {
+						const jsonPostData = JSON.parse(postData);
+						if (typeof jsonPostData === "object" && jsonPostData !== null) {
+							if (jsonPostData.operationName === "globalData") {
+								const jsonResponse = await response.json();
+								if (jsonResponse.data.userStatus.isSignedIn) {
+									resolve(loginPage.cookies());
+								}
+							}
+						}
+					}
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		});
 	}
 
 	private static async openLoginPage(): Promise<Protocol.Network.Cookie[]> {
@@ -41,22 +109,9 @@ class LeetCodeLogin {
 			await loginPage.goto(LeetCodeLogin.loginURL, { waitUntil: "networkidle2" });
 
 			loginPage.on("response", async (response) => {
-				try {
-					const request = response.request();
-					if (request.resourceType() === "xhr") {
-						const postData = request.postData() || "{}";
-						const jsonPostData = JSON.parse(postData);
-						if (jsonPostData.operationName === "globalData") {
-							const response = request.response();
-							const jsonResponse = await response?.json();
-							if (jsonResponse.data.userStatus.isSignedIn) {
-								resolve(loginPage.cookies());
-							}
-						}
-					}
-				} catch (error) {
-					console.error(error);
-				}
+				const credentials = await this.waitForLogin(response, loginPage);
+				await loginBrowser.close();
+				resolve(credentials);
 			});
 
 			const username = process.env.LEETCODE_USERNAME || "";
@@ -67,9 +122,6 @@ class LeetCodeLogin {
 
 			await loginPage.type(loginInputID, username);
 			await loginPage.type(passwordInputID, password);
-
-			await loginPage.waitForSelector(`aria/User Profile`, { timeout: 0 });
-			await loginBrowser.close();
 		});
 	}
 

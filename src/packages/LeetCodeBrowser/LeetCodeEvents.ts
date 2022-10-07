@@ -5,7 +5,7 @@ import { Browser, Page } from "puppeteer";
 import { bindBrowserEventListeners, bindPageEventListeners } from "./EventListeners";
 
 export class LeetCodeEvents extends EventEmitter {
-	constructor(public browser: Browser, public page: Page) {
+	constructor(private browser: Browser, public page: Page) {
 		super();
 		this.addPageEvents();
 		this.addPageEventListeners(page);
