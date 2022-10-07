@@ -105,3 +105,6 @@ dist
 
 # puppeteer
 /screenshots
+
+# Saved user cookies
+user_cookies.json

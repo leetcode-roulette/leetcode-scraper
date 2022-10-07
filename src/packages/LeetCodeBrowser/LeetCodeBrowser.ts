@@ -1,26 +1,18 @@
 import puppeteer from "puppeteer-extra";
-import { Browser, Page, PuppeteerLaunchOptions } from "puppeteer";
-import { bindBrowserEventListeners, bindPageEventListeners } from "./EventListeners";
+import { Browser, Page, Protocol, PuppeteerLaunchOptions } from "puppeteer";
 import { LeetCodeEvents } from "./LeetCodeEvents";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
-export class LeetCodeBrowser extends LeetCodeEvents {
+import UserAgent from "../../../config/useragent";
+import LeetCodeLogin from "./LeetCodeLogin";
+class LeetCodeBrowser extends LeetCodeEvents {
 	private static defaultOptions: PuppeteerLaunchOptions = {};
 	private static baseURL: string = "https://leetcode.com/";
-	private static loginURL: string = "https://leetcode.com/accounts/login";
-	private constructor(private options: PuppeteerLaunchOptions, private browser: Browser, private page: Page) {
-		super();
-		this.addBrowserEventListeners(browser);
-		this.addPageEventListeners(page);
-	}
+	private sessionCookies: Protocol.Network.Cookie[] | undefined = undefined;
 
-	private addPageEventListeners(page: Page): void {
-		bindPageEventListeners(page, this);
-	}
-
-	private addBrowserEventListeners(browser: Browser): void {
-		bindBrowserEventListeners(browser, this);
+	private constructor(private options: PuppeteerLaunchOptions, browser: Browser, page: Page) {
+		super(browser, page);
 	}
 
 	public async goTo(path: String): Promise<void> {
@@ -32,61 +24,29 @@ export class LeetCodeBrowser extends LeetCodeEvents {
 		}
 	}
 
-	private async loginToLeetCode(): Promise<void> {
-		const username = process.env.LEETCODE_USERNAME;
-		const password = process.env.LEETCODE_PASSWORD;
-		console.log("Attempting to login to leetcode...");
-		if (!username || !password) {
-			throw new Error("LEETCODE_USERNAME or LEETCODE_PASSWORD can not be found or is not defined");
-		}
-
-		const loginInputID = "#id_login";
-		const passwordInputID = "#id_password";
-		const submitBtnID = "#signin_btn";
-
-		const inputDelay = 100;
-
-		await this.page.goto(LeetCodeBrowser.loginURL, { waitUntil: "networkidle0" });
-		await this.page.type(loginInputID, username, { delay: inputDelay });
-		await this.page.type(passwordInputID, password, { delay: inputDelay });
-		try {
-			const [response] = await Promise.all([
-				this.page.waitForNavigation(),
-				this.page.click(submitBtnID, { delay: inputDelay }),
-			]);
-			if (response) {
-				if (response.url() === LeetCodeBrowser.baseURL) {
-					console.log("Logged into leetcode!");
-					return;
-				}
-			}
-		} catch (error) {
-			console.log(error);
-		}
-		throw new Error(`Could not login to Leetcode with provided username and password.`);
-	}
-
 	protected async initialize(): Promise<void> {
-		await this.loginToLeetCode();
+		this.sessionCookies = await LeetCodeLogin.getSessionCookies();
 	}
+
 	public static async createInstance(options?: PuppeteerLaunchOptions): Promise<LeetCodeBrowser> {
-		try {
-			options = options || this.defaultOptions;
-			const browser = await puppeteer.launch(options);
-			const page = await browser.newPage();
-			const newLeetCodeBrowser: LeetCodeBrowser = new LeetCodeBrowser(options, browser, page);
-			await newLeetCodeBrowser.initialize();
-			return new Promise(function (resolve, reject) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				options = options || this.defaultOptions;
+				const browser = await puppeteer.launch(options);
+				const page = await browser.newPage();
+				await page.setUserAgent(UserAgent.useragent);
+				const newLeetCodeBrowser: LeetCodeBrowser = new LeetCodeBrowser(options, browser, page);
+				await newLeetCodeBrowser.initialize();
 				resolve(newLeetCodeBrowser);
-			});
-		} catch (error) {
-			return new Promise(function (resolve, reject) {
-				return reject(`An error occured creating the SinglePageBrowser instance: ${error}`);
-			});
-		}
+			} catch (error) {
+				reject(`An error occured creating the SinglePageBrowser instance: ${error}`);
+			}
+		});
 	}
 
 	private log(message: any) {
 		console.error(`Class ${this.constructor.name}| An error has occured: ${message}`);
 	}
 }
+
+export default LeetCodeBrowser;
