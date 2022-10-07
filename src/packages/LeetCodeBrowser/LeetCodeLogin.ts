@@ -10,28 +10,28 @@ class LeetCodeLogin {
 	private static baseURL: string = "https://leetcode.com/";
 	private static loginURL: string = "https://leetcode.com/accounts/login";
 	private static useragent: string = UserAgent.useragent;
-	private static credentials: Protocol.Network.Cookie[];
+	private static sessionCookies: Protocol.Network.Cookie[];
 
-	public static async loginInfo(): Promise<Protocol.Network.Cookie[]> {
-		if (!LeetCodeLogin.credentials) {
-			this.credentials = await LeetCodeLogin.getCredentials();
+	public static async getSessionCookies(): Promise<Protocol.Network.Cookie[]> {
+		if (!LeetCodeLogin.sessionCookies) {
+			this.sessionCookies = await LeetCodeLogin.getCredentials();
 		}
-		return this.credentials;
+		return this.sessionCookies;
 	}
 
 	private static async getCredentials(): Promise<Protocol.Network.Cookie[]> {
-		let credentials: Protocol.Network.Cookie[] | undefined = openCookiesFromFile();
-		const isLoggedIn = await this.checkLoginStatus(credentials);
-		if (credentials && isLoggedIn) {
-			return credentials;
+		let sessionCookies: Protocol.Network.Cookie[] | undefined = openCookiesFromFile();
+		const isLoggedIn = await this.checkLoginStatus(sessionCookies);
+		if (sessionCookies && isLoggedIn) {
+			return sessionCookies;
 		}
-		credentials = await this.login();
-		this.saveCredentials(credentials);
-		return credentials;
+		sessionCookies = await this.login();
+		this.saveCredentials(sessionCookies);
+		return sessionCookies;
 	}
 
-	private static saveCredentials(credentials: Protocol.Network.Cookie[]) {
-		saveCookiesToFile(credentials);
+	private static saveCredentials(sessionCookies: Protocol.Network.Cookie[]) {
+		saveCookiesToFile(sessionCookies);
 	}
 
 	private static async getLeetcodeGlobalData(page: Page): Promise<LeetcodeGlobalData> {
@@ -59,14 +59,14 @@ class LeetCodeLogin {
 		});
 	}
 
-	private static checkLoginStatus(credentials: Protocol.Network.Cookie[] | undefined): Promise<Boolean> {
+	private static checkLoginStatus(sessionCookies: Protocol.Network.Cookie[] | undefined): Promise<Boolean> {
 		return new Promise(async (resolve, reject) => {
-			if (!credentials) return resolve(false);
+			if (!sessionCookies) return resolve(false);
 			const loginBrowser = await puppeteer.launch();
 			const defaultPages = await loginBrowser.pages();
 			const loginPage = defaultPages[0];
 			await loginPage.setUserAgent(LeetCodeLogin.useragent);
-			await loginPage.setCookie(...credentials);
+			await loginPage.setCookie(...sessionCookies);
 
 			const { userStatus } = await this.getLeetcodeGlobalData(loginPage);
 			await loginBrowser.close();
@@ -109,9 +109,9 @@ class LeetCodeLogin {
 			await loginPage.goto(LeetCodeLogin.loginURL, { waitUntil: "networkidle2" });
 
 			loginPage.on("response", async (response) => {
-				const credentials = await this.waitForLogin(response, loginPage);
+				const sessionCookies = await this.waitForLogin(response, loginPage);
 				await loginBrowser.close();
-				resolve(credentials);
+				resolve(sessionCookies);
 			});
 
 			const username = process.env.LEETCODE_USERNAME || "";
@@ -126,9 +126,9 @@ class LeetCodeLogin {
 	}
 
 	private static async login(): Promise<Protocol.Network.Cookie[]> {
-		const credentials = await this.openLoginPage();
-		console.log("logged in!", credentials);
-		return credentials;
+		const sessionCookies = await this.openLoginPage();
+		console.log("logged in!", sessionCookies);
+		return sessionCookies;
 	}
 }
 

@@ -9,7 +9,7 @@ import LeetCodeLogin from "./LeetCodeLogin";
 class LeetCodeBrowser extends LeetCodeEvents {
 	private static defaultOptions: PuppeteerLaunchOptions = {};
 	private static baseURL: string = "https://leetcode.com/";
-	private credentials: Protocol.Network.Cookie[] | undefined = undefined;
+	private sessionCookies: Protocol.Network.Cookie[] | undefined = undefined;
 
 	private constructor(private options: PuppeteerLaunchOptions, browser: Browser, page: Page) {
 		super(browser, page);
@@ -25,11 +25,7 @@ class LeetCodeBrowser extends LeetCodeEvents {
 	}
 
 	protected async initialize(): Promise<void> {
-		try {
-			this.credentials = await LeetCodeLogin.loginInfo();
-		} catch (error: any) {
-			throw new Error(`Error occured during ${this.constructor.name} Initialization : ${error}`);
-		}
+		this.sessionCookies = await LeetCodeLogin.getSessionCookies();
 	}
 
 	public static async createInstance(options?: PuppeteerLaunchOptions): Promise<LeetCodeBrowser> {
