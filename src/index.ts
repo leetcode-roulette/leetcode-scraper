@@ -7,7 +7,7 @@ config();
 
 const serve = async (): Promise<void> => {
 	const app: Application = express();
-	Database.connect();
+	await Database.connect();
 
 	const lc = await LeetCodeBrowser.createInstance();
 

@@ -3,15 +3,19 @@ import mongoose from "mongoose";
 export class Database {
 	private static url: string | undefined;
 
-	public static connect(): void {
-		mongoose.connect(this.connectionString);
+	public static connect(): Promise<boolean> {
+		return new Promise((resolve, reject) => {
+			mongoose.connect(this.connectionString);
 
-		mongoose.connection.once("open", async (): Promise<void> => {
-			console.log("Connected to database");
-		});
+			mongoose.connection.once("open", async (): Promise<void> => {
+				console.log("Connected to database");
+				resolve(true);
+			});
 
-		mongoose.connection.on("error", async (e): Promise<void> => {
-			console.log("Error connectiong to database", e);
+			mongoose.connection.on("error", async (e): Promise<void> => {
+				console.log("Error connectiong to database", e);
+				resolve(false);
+			});
 		});
 	}
 
