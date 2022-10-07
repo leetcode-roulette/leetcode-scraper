@@ -29,6 +29,6 @@ async function xhrResourceType(req: HTTPRequest, res: HTTPResponse) {
 			//this.handleXHR(requestPayload, responseData);
 		}
 	} catch (error) {
-		console.error(error);
+		// console.error(error);
 	}
 }
