@@ -4,6 +4,9 @@ import { Browser, Page, Protocol, PuppeteerLaunchOptions } from "puppeteer";
 import { LeetcodeEvents } from "./LeetcodeEvents";
 import UserAgent from "../../../config/useragent";
 import LeetcodeLogin from "./LeetcodeLogin";
+import LeetcodeGraphQL from "./LeetcodeGraphQL";
+import EventEmitter from "eventemitter3";
+import { PageEvents } from "./events";
 
 puppeteer.use(StealthPlugin());
 
@@ -16,8 +19,17 @@ class LeetcodeBrowser extends LeetcodeEvents {
 		super(browser, page);
 	}
 
+	public get responses() {
+		return LeetcodeGraphQL.getResponses();
+	}
+
+	public get requests() {
+		return LeetcodeGraphQL.getRequests();
+	}
+
 	public async goTo(titleSlug: string): Promise<void> {
 		const urlPath = this.createLeetcodeURL(titleSlug);
+		LeetcodeGraphQL.flush();
 		try {
 			await this.page.goto(urlPath, { waitUntil: "networkidle0" });
 		} catch (error) {
@@ -32,6 +44,7 @@ class LeetcodeBrowser extends LeetcodeEvents {
 	protected async initialize(): Promise<void> {
 		this.sessionCookies = await LeetcodeLogin.getSessionCookies();
 		this.page.setCookie(...this.sessionCookies);
+		this.on(PageEvents.PAGE_RESPONSE, LeetcodeGraphQL.eventPageResponse);
 	}
 
 	public static async createInstance(options?: PuppeteerLaunchOptions): Promise<LeetcodeBrowser> {
