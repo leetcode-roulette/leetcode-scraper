@@ -12,11 +12,11 @@ export type LCGraphQLOperation =
 	| "questionTopicCount"
 	| "getBetaParticipation";
 
-export interface LeetCodeRequestPaylod {
+export interface LeetcodeRequestPayload {
 	operationName: LCGraphQLOperation;
 	query: string;
 	variables: Object;
 }
-export type LeetCodeXHRRequest = {
-	[key in LCGraphQLOperation]: LeetCodeRequestPaylod;
+export type LeetcodeXHRRequest = {
+	[key in LCGraphQLOperation]: LeetcodeRequestPayload;
 };
