@@ -1,9 +1,9 @@
-import LeetCodeBrowser from "../LeetCodeBrowser/LeetCodeBrowser";
+import LeetcodeBrowser from "../LeetCodeBrowser/LeetcodeBrowser";
 import { config } from "dotenv";
 config();
 
-test("LeetCodeBrowser login()", async () => {
-	let leetCodeBrowser: LeetCodeBrowser = await LeetCodeBrowser.createInstance();
-	await leetCodeBrowser.login();
-	expect(leetCodeBrowser.getCookies).not.toEqual([]);
+test("LeetcodeBrowser login()", async () => {
+	let LeetcodeBrowser: LeetcodeBrowser = await LeetcodeBrowser.createInstance();
+	await LeetcodeBrowser.login();
+	expect(LeetcodeBrowser.getCookies).not.toEqual([]);
 }, 30000);

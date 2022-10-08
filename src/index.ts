@@ -1,15 +1,13 @@
 import { config } from "dotenv";
 import express, { Application } from "express";
 import { Database } from "./db/db.config";
-import LeetCodeBrowser from "./packages/LeetCodeBrowser/LeetCodeBrowser";
+import ScraperManager from "./packages/ScraperManager/ScraperManager";
 import healthcheck from "./routes/healthCheck";
 config();
 
 const serve = async (): Promise<void> => {
 	const app: Application = express();
 	await Database.connect();
-
-	const lc = await LeetCodeBrowser.createInstance();
 
 	const PORT = process.env.PORT || 3000;
 
@@ -19,5 +17,8 @@ const serve = async (): Promise<void> => {
 	app.listen(PORT, () => {
 		console.log(`Server is listening on port: ${PORT}`);
 	});
+
+	const scraper = new ScraperManager();
+	await scraper.start();
 };
 serve();

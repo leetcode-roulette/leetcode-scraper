@@ -1,5 +1,5 @@
-import { Browser, Page, PageEventObject } from "puppeteer";
-import { BrowserEvents, PageEventsMap } from "./events";
+import { Page, PageEventObject } from "puppeteer";
+import { PageEventsMap } from "./events";
 import EventEmitter from "eventemitter3";
 
 export function bindPageEventListeners(page: Page, context: EventEmitter) {
@@ -10,8 +10,4 @@ export function bindPageEventListeners(page: Page, context: EventEmitter) {
 			context.emit(eventName, pageEvent, page);
 		});
 	});
-}
-
-export function bindBrowserEventListeners(browser: Browser, context: EventEmitter) {
-	const browserEvents: (string | symbol)[] = Array.from(BrowserEvents.values());
 }

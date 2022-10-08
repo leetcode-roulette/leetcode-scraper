@@ -1,16 +1,16 @@
 import { EventEmitter } from "eventemitter3";
 import { getTitleSlugs } from "../../db/Problem";
-import LeetCodeBrowser from "../LeetCodeBrowser/LeetCodeBrowser";
+import LeetcodeBrowser from "../LeetCodeBrowser/LeetcodeBrowser";
 
 class ScraperManager extends EventEmitter {
-	private static leetcodeBrowser: LeetCodeBrowser | null = null;
+	private static LeetcodeBrowser: LeetcodeBrowser | null = null;
 	private static titleSlugs: string[] = [];
 
 	private async getLeetcodeBrowser() {
-		if (!ScraperManager.leetcodeBrowser) {
-			ScraperManager.leetcodeBrowser = await LeetCodeBrowser.createInstance({ headless: false });
+		if (!ScraperManager.LeetcodeBrowser) {
+			ScraperManager.LeetcodeBrowser = await LeetcodeBrowser.createInstance({ headless: false });
 		}
-		return ScraperManager.leetcodeBrowser;
+		return ScraperManager.LeetcodeBrowser;
 	}
 
 	private async getTitleSlugs() {
@@ -21,14 +21,13 @@ class ScraperManager extends EventEmitter {
 	}
 
 	private async scrape(titleSlug: string) {
-		const leetcodeBrowser = await this.getLeetcodeBrowser();
-		leetcodeBrowser.goTo(titleSlug);
+		const LeetcodeBrowser = await this.getLeetcodeBrowser();
+		await LeetcodeBrowser.goTo(titleSlug);
 	}
 	public async start() {
 		const titleSlugs = await getTitleSlugs();
-		console.log(titleSlugs);
-		this.scrape(titleSlugs[59]);
+		this.scrape(titleSlugs[Math.floor(Math.random() * titleSlugs.length - 1)]);
 	}
 }
 
-export default new ScraperManager();
+export default ScraperManager;

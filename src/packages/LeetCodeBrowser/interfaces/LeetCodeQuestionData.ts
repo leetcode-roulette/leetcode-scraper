@@ -25,7 +25,7 @@ interface iSolution {
 	paidOnlyVideo: boolean;
 }
 
-export interface LeetCodeQuestionData {
+export interface LeetcodeQuestionData {
 	questionId: number;
 	questionFrontendId: number;
 	boundTopicId: string | null;

@@ -1,8 +1,8 @@
 import { IProblemData, ProblemData } from "../models/problemdata";
-import { iStats, LeetCodeQuestionData, QuestionDifficulty } from "../packages/LeetCodeBrowser/interfaces/LeetCodeQuestionData";
+import { iStats, LeetcodeQuestionData, QuestionDifficulty } from "../packages/LeetCodeBrowser/interfaces/LeetcodeQuestionData";
 
 export class ProblemDataDB {
-	public static async insert(questionData: LeetCodeQuestionData): Promise<void> {
+	public static async insert(questionData: LeetcodeQuestionData): Promise<void> {
 		let stats: iStats = JSON.parse(questionData.stats);
 		let data: IProblemData = await ProblemData.create({
 			problemID: questionData.questionId,

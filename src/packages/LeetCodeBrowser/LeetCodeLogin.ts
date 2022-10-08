@@ -6,15 +6,15 @@ import { openCookiesFromFile, saveCookiesToFile } from "../../utils/cookies";
 import { LeetcodeGlobalData } from "./interfaces/LeetcodeGlobalData";
 puppeteer.use(StealthPlugin());
 
-class LeetCodeLogin {
+class LeetcodeLogin {
 	private static baseURL: string = "https://leetcode.com/";
 	private static loginURL: string = "https://leetcode.com/accounts/login";
 	private static useragent: string = UserAgent.useragent;
 	private static sessionCookies: Protocol.Network.Cookie[];
 
 	public static async getSessionCookies(): Promise<Protocol.Network.Cookie[]> {
-		if (!LeetCodeLogin.sessionCookies) {
-			this.sessionCookies = await LeetCodeLogin.getCredentials();
+		if (!LeetcodeLogin.sessionCookies) {
+			this.sessionCookies = await LeetcodeLogin.getCredentials();
 		}
 		return this.sessionCookies;
 	}
@@ -53,7 +53,7 @@ class LeetCodeLogin {
 					}
 				}
 			});
-			page.goto(LeetCodeLogin.baseURL).catch((error) => {
+			page.goto(LeetcodeLogin.baseURL).catch((error) => {
 				//console.error(error);
 			});
 		});
@@ -65,7 +65,7 @@ class LeetCodeLogin {
 			const loginBrowser = await puppeteer.launch();
 			const defaultPages = await loginBrowser.pages();
 			const loginPage = defaultPages[0];
-			await loginPage.setUserAgent(LeetCodeLogin.useragent);
+			await loginPage.setUserAgent(LeetcodeLogin.useragent);
 			await loginPage.setCookie(...sessionCookies);
 
 			const { userStatus } = await this.getLeetcodeGlobalData(loginPage);
@@ -104,9 +104,9 @@ class LeetCodeLogin {
 			const loginBrowser = await puppeteer.launch({ headless: false });
 			const defaultPages = await loginBrowser.pages();
 			const loginPage = defaultPages[0];
-			await loginPage.setUserAgent(LeetCodeLogin.useragent);
+			await loginPage.setUserAgent(LeetcodeLogin.useragent);
 
-			await loginPage.goto(LeetCodeLogin.loginURL, { waitUntil: "networkidle2" });
+			await loginPage.goto(LeetcodeLogin.loginURL, { waitUntil: "networkidle2" });
 
 			loginPage.on("response", async (response) => {
 				const sessionCookies = await this.waitForLogin(response, loginPage);
@@ -132,4 +132,4 @@ class LeetCodeLogin {
 	}
 }
 
-export default LeetCodeLogin;
+export default LeetcodeLogin;
